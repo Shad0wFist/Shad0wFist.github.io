@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Core API — Screwdriver Engine</title>
+<meta name="description" content="Справочник Core API Screwdriver: spawn, add, each, tag, time, log, input.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html">Физика Bolt</a>
+<a href="../guides/scripting.html">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html" class="active">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a><span class="sep">/</span><a href="../api/index.html">API</a></div>
+
+<h1>Core API</h1>
+<p class="lead">Базовые функции ядра. Доступны глобально как <code>screw.*</code>.</p>
+
+<h2>Сущности и компоненты</h2>
+<table class="docs">
+  <tr><th>Функция</th><th>Сигнатура</th><th>Описание</th></tr>
+  <tr><td><code>spawn</code></td><td><code>(name) → EntityId</code></td><td>Создаёт пустую сущность</td></tr>
+  <tr><td><code>despawn</code></td><td><code>(id)</code></td><td>Удаляет сущность и её компоненты</td></tr>
+  <tr><td><code>add</code></td><td><code>(id, comp, fields)</code></td><td>Добавляет компонент с полями</td></tr>
+  <tr><td><code>get</code></td><td><code>(id, comp) → table|nil</code></td><td>Возвращает компонент</td></tr>
+  <tr><td><code>has_tag</code></td><td><code>(id, tag) → bool</code></td><td>Проверка метки</td></tr>
+  <tr><td><code>each</code></td><td><code>(...comps) → iter</code></td><td>Итератор по архетипу</td></tr>
+</table>
+
+<h2>Пример</h2>
+<div class="codeblock"><div class="cb-head"><span>core_example.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local id = screw.<span class="f">spawn</span>(<span class="s">"Enemy"</span>)
+screw.<span class="f">add</span>(id, <span class="s">"Transform"</span>, { position = <span class="f">vec3</span>(<span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>) })
+screw.<span class="f">tag</span>(id, <span class="s">"hostile"</span>)
+
+for eid, tr in screw.<span class="f">each</span>(<span class="s">"Transform"</span>, <span class="s">"Tag:hostile"</span>) do
+    tr.position.z = tr.position.z - <span class="n">0.1</span>
+end</code></pre></div>
+
+<h2 id="time">Время и кадры</h2>
+<table class="docs">
+  <tr><th>Поле</th><th>Тип</th><th>Описание</th></tr>
+  <tr><td><code>screw.time.dt</code></td><td>float</td><td>Длительность последнего кадра</td></tr>
+  <tr><td><code>screw.time.now</code></td><td>float</td><td>Время с запуска, сек</td></tr>
+  <tr><td><code>screw.time.frame</code></td><td>int</td><td>Номер кадра</td></tr>
+  <tr><td><code>screw.time.fixed_dt</code></td><td>float</td><td>Шаг физики (1/120)</td></tr>
+</table>
+
+<h2 id="input">Ввод</h2>
+<div class="codeblock"><div class="cb-head"><span>input_example.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local h = screw.input.<span class="f">axis</span>(<span class="s">"horizontal"</span>)   -- -<span class="n">1</span>..<span class="n">1</span>
+if screw.input.<span class="f">pressed</span>(<span class="s">"jump"</span>) then        -- событие нажатия (<span class="n">1</span> кадр)
+    <span class="f">print</span>(<span class="s">"прыжок на кадре"</span>, screw.time.frame)
+end
+local pad = screw.input.<span class="f">gamepad</span>(<span class="n">0</span>)
+if pad then <span class="f">print</span>(<span class="s">"стейк X:"</span>, pad.left.x) end</code></pre></div>
+
+<h2 id="log">Лог</h2>
+<div class="codeblock"><div class="cb-head"><span>log_example.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>screw.log.<span class="f">info</span>(<span class="s">"загрузка сцены …"</span>)
+screw.log.<span class="f">warn</span>(<span class="s">"мсaa слишком высокое"</span>)
+screw.log.<span class="f">error</span>(<span class="s">"не найден префаб"</span>, <span class="s">"prefabs/crate.scw"</span>)</code></pre></div>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: api/core.html</span>
+</div>
+<div class="pager"><a href="../api/index.html"><span class="dir">← Назад</span><span class="ttl">Обзор API</span></a><a class="next" href="../api/scene.html"><span class="dir">Вперёд →</span><span class="ttl">Scene API</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Блог: релиз 2.4 «Hexhead» — Screwdriver Engine</title>
+<meta name="description" content="Что нового в Screwdriver 2.4: кластеризованный свет, WebGPU-бэкенд, новый профилировщик и ускоренный Crate.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html" class="active">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html">Физика Bolt</a>
+<a href="../guides/scripting.html">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a></div>
+
+<h1>Релиз 2.4 «Hexhead»</h1>
+<p class="subtitle">Опубликовано 12 марта 2026 · команда Core · 6 минут чтения</p>
+
+<p class="lead">Мы полгода переписывали рендерер и конвейер ассетов. Рассказываем,
+что изменилось и как перейти со старой версии.</p>
+
+<h2>Главное</h2>
+<ul>
+  <li><span class="badge green">new</span> <b>Кластеризованный свет</b> — до 4096 источников без ручного батчинга;</li>
+  <li><span class="badge green">new</span> <b>WebGPU-бэкенд</b> — сборка под браузер из той же кодовой базы;</li>
+  <li><span class="badge green">new</span> <b>Профилировщик v2</b> — flame chart систем и swimlane CPU/GPU;</li>
+  <li><span class="badge blue">imp</span> <b>Crate</b> собирает бандлы в 3.1 раза быстрее (параллельный импорт);</li>
+  <li><span class="badge blue">imp</span> <b>Bolt</b>: непрерывное обнаружение столкновений (CCD) для быстрых тел;</li>
+  <li><span class="badge red">fix</span> Утечка в job graph при 128+ потоках.</li>
+</ul>
+
+<figure class="shot">
+  <img src="../assets/images/screenshots/profiler.jpg" alt="Новый профилировщик Screwdriver: flame chart и графики CPU/GPU">
+  <figcaption>Рис. 1 — Профилировщик v2: сразу видно, что <code>Script.update</code> съедает 4.1 мс.</figcaption>
+</figure>
+
+<h2>Как мигрировать</h2>
+<div class="codeblock"><div class="cb-head"><span>терминал</span><button class="copy-btn" type="button">Копировать</button><span class="lang">bash</span></div><pre><code><span class="g">screw upgrade --to 2.4</span>
+[crate] резервная копия проекта … ok
+[crate] миграция screwdriver.toml … ok
+[crate] пересборка бандлов … <span class="n">42</span> ассета за <span class="n">3.8</span> c
+[ ok ] обновление завершено</code></pre></div>
+<p>Единственное ломающее изменение: секция <code>[render.lighting]</code> заменена на
+<code>[render.clustered]</code>. Старый ключ выдаёт предупреждение и работает до 3.0.</p>
+
+<h2>Код: новый источник света</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/light.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local <span class="t">Light</span> = screw.<span class="f">component</span>(<span class="s">"Light"</span>)
+
+function <span class="t">Light</span>:<span class="f">on_start</span>()
+    self.kind = <span class="s">"point"</span>          -- point | spot | dir
+    self.intensity = <span class="n">1200</span>        -- люмены
+    self.range = <span class="n">18.0</span>            -- метры
+    self.color = <span class="f">vec3</span>(<span class="n">1.0</span>, <span class="n">0.78</span>, <span class="n">0.42</span>)
+    screw.render.<span class="f">add_clustered_light</span>(self.entity, self)
+end</code></pre></div>
+<p>Полный список изменений — в <a href="../changelog.html">истории изменений</a>.</p>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: blog/post1.html</span>
+</div>
+<div class="pager"><a href="../about/index.html"><span class="dir">← Назад</span><span class="ttl">О движке и о сайте</span></a><a class="next" href="../getting-started/index.html"><span class="dir">Вперёд →</span><span class="ttl">Установка</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

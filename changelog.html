@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>История изменений — Screwdriver Engine</title>
+<meta name="description" content="Changelog игрового движка Screwdriver: версии 2.4, 2.3, 2.2, 2.1, 2.0.">
+<link rel="icon" type="image/png" href="assets/images/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/docs.css">
+<link rel="stylesheet" href="assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="index.html">
+    <img src="assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="index.html">Главная</a>
+<a href="about/index.html">О движке и о сайте</a>
+<a href="blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="getting-started/index.html">Установка</a>
+<a href="getting-started/configuration.html">Конфигурация</a>
+<a href="getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="guides/index.html">Обзор руководств</a>
+<a href="guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="guides/physics.html">Физика Bolt</a>
+<a href="guides/scripting.html">Скриптинг Torque</a>
+<a href="guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="api/index.html">Обзор API</a>
+<a href="api/core.html">Core API</a>
+<a href="api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="examples/index.html">Все примеры</a>
+<a href="examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="changelog.html" class="active">История изменений</a>
+<a href="faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="admin/index.html">Workbench Cloud (админка)</a>
+<a href="login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="index.html">Главная</a></div>
+
+<h1>История изменений</h1>
+<p class="lead">Формат: <b>new</b> / <b>imp</b> / <b>fix</b> / <b>break</b>.</p>
+
+<h2>2.4 «Hexhead» — 2026-03-12</h2>
+<ul>
+  <li><span class="badge green">new</span> Кластеризованный свет (до 4096 источников);</li>
+  <li><span class="badge green">new</span> WebGPU-бэкенд;</li>
+  <li><span class="badge green">new</span> Профилировщик v2 (flame chart, swimlane);</li>
+  <li><span class="badge blue">imp</span> Crate: параллельный импорт, ×3.1 к скорости;</li>
+  <li><span class="badge blue">imp</span> Bolt: CCD для быстрых тел;</li>
+  <li><span class="badge red">fix</span> Утечка job graph при 128+ потоках;</li>
+  <li><span class="badge gray">break</span> <code>[render.lighting]</code> → <code>[render.clustered]</code>.</li>
+</ul>
+
+<h2>2.3 «Flathead» — 2025-09-02</h2>
+<ul>
+  <li><span class="badge green">new</span> Горячая перезагрузка скриптов;</li>
+  <li><span class="badge green">new</span> Триггер-зоны и события <code>trigger_enter/exit</code>;</li>
+  <li><span class="badge blue">imp</span> Снижение потребления памяти архетипов на 22%;</li>
+  <li><span class="badge red">fix</span> Дребезг контактов в стопках тел.</li>
+</ul>
+
+<h2>2.2 «Phillips» — 2025-02-18</h2>
+<ul>
+  <li><span class="badge green">new</span> Потоковая подгрузка сцен (<code>scene.stream</code>);</li>
+  <li><span class="badge blue">imp</span> Сжатие бандлов brotli;</li>
+  <li><span class="badge red">fix</span> Мерцание теней на границе каскадов.</li>
+</ul>
+
+<h2>2.1 «Torx» — 2024-08-30</h2>
+<ul>
+  <li><span class="badge green">new</span> JS-биндинги Torque;</li>
+  <li><span class="badge green">new</span> Поддержка геймпадов;</li>
+  <li><span class="badge red">fix</span> Вылет при смене сцены во время загрузки.</li>
+</ul>
+
+<h2>2.0 «Slotted» — 2024-03-01</h2>
+<ul>
+  <li><span class="badge green">new</span> Первое стабильное API;</li>
+  <li><span class="badge gray">break</span> Переход на ECS (старый node-graph удалён).</li>
+</ul>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: changelog.html</span>
+</div>
+<div class="pager"><a href="examples/platformer-2d.html"><span class="dir">← Назад</span><span class="ttl">2D-платформер</span></a><a class="next" href="faq.html"><span class="dir">Вперёд →</span><span class="ttl">FAQ</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/sidebar.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/copy-code.js"></script>
+
+</body>
+</html>

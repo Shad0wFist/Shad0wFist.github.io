@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Физика Bolt — Screwdriver Engine</title>
+<meta name="description" content="Физический модуль Bolt: твёрдые тела, коллайдеры, триггеры, raycast, CCD и отладочный оверлей.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html" class="active">Физика Bolt</a>
+<a href="../guides/scripting.html">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a><span class="sep">/</span><a href="../guides/index.html">Руководства</a></div>
+
+<h1>Физика Bolt</h1>
+<p class="lead">Bolt считает твёрдые тела фиксированными шагами (по умолчанию 120 Гц),
+независимо от частоты рендера.</p>
+
+<h2>Тело и коллайдер</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/body.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local id = screw.<span class="f">spawn</span>(<span class="s">"Ball"</span>)
+screw.<span class="f">add</span>(id, <span class="s">"Transform"</span>,  { position = <span class="f">vec3</span>(<span class="n">0</span>, <span class="n">6</span>, <span class="n">0</span>) })
+screw.<span class="f">add</span>(id, <span class="s">"Collider"</span>,  { shape = <span class="s">"sphere"</span>, radius = <span class="n">0.5</span> })
+screw.<span class="f">add</span>(id, <span class="s">"RigidBody"</span>, {
+    mass        = <span class="n">2.0</span>,
+    restitution = <span class="n">0.78</span>,     -- упругость отскока
+    friction    = <span class="n">0.4</span>,
+    ccd         = true,     -- непрерывное обнаружение столкновений
+})</code></pre></div>
+
+<h2>События столкновений</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/on_hit.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>screw.<span class="f">on</span>(<span class="s">"collision_begin"</span>, <span class="f">function</span>(a, b, contact)
+    if screw.<span class="f">has_tag</span>(a, <span class="s">"player"</span>) and screw.<span class="f">has_tag</span>(b, <span class="s">"destructible"</span>) then
+        screw.<span class="f">despawn</span>(b)
+        screw.audio.<span class="f">play</span>(<span class="s">"sfx/crate_break.scw"</span>, contact.point)
+    end
+end)</code></pre></div>
+
+<h2>Raycast и триггеры</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/raycast.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local hit = screw.physics.<span class="f">raycast</span>(origin, direction, <span class="n">50.0</span>)
+if hit then
+    <span class="f">print</span>(<span class="s">"попали в"</span>, hit.entity, <span class="s">"на дистанции"</span>, hit.distance)
+end
+
+-- триггер: зона без физического отклика
+screw.<span class="f">add</span>(zone, <span class="s">"Collider"</span>, { shape = <span class="s">"box"</span>, size = <span class="f">vec3</span>(<span class="n">4</span>, <span class="n">3</span>, <span class="n">4</span>), is_trigger = true })</code></pre></div>
+
+<h2>Отладочный оверлей</h2>
+<figure class="shot">
+  <img src="../assets/images/screenshots/physics-debug.jpg" alt="Отладочный оверлей физики: коллайдеры, точки контакта, лучи">
+  <figcaption>Рис. 1 — <code>screw physics debug on</code>: зелёные коллайдеры, красные точки контакта, голубые лучи, фиолетовые триггеры.</figcaption>
+</figure>
+<div class="callout warn"><span class="ct">Частая ошибка</span><p>Не двигайте тело через <code>Transform.position</code> каждый кадр — используйте <code>RigidBody.velocity</code> или <code>move_to</code>, иначе сломается интерполяция и CCD.</p></div>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: guides/physics.html</span>
+</div>
+<div class="pager"><a href="../guides/scenes-and-entities.html"><span class="dir">← Назад</span><span class="ttl">Сцены и сущности (ECS)</span></a><a class="next" href="../guides/scripting.html"><span class="dir">Вперёд →</span><span class="ttl">Скриптинг Torque</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Конфигурация — Screwdriver Engine</title>
+<meta name="description" content="Файл screwdriver.toml: секции project, render, physics, audio, build. Примеры и таблица ключей.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html" class="active">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html">Физика Bolt</a>
+<a href="../guides/scripting.html">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a><span class="sep">/</span><a href="../getting-started/index.html">Быстрый старт</a></div>
+
+<h1>Конфигурация</h1>
+<p class="lead">Весь проект описывается одним файлом <code>screwdriver.toml</code> в корне.</p>
+
+<h2>Полный пример</h2>
+<div class="codeblock"><div class="cb-head"><span>screwdriver.toml</span><button class="copy-btn" type="button">Копировать</button><span class="lang">toml</span></div><pre><code><span class="t">[project]</span>
+<span class="p">name        </span>=<span class="s">"my_first_game"</span>
+<span class="p">version     </span>=<span class="s">"0.1.0"</span>
+<span class="p">engine      </span>=<span class="s">"2.4"</span>
+<span class="p">entry_scene </span>=<span class="s">"scenes/main.scw"</span>
+
+<span class="t">[render]</span>
+<span class="p">backend     </span>=<span class="s">"vulkan"</span>        <span class="c"># vulkan | opengl | webgpu</span>
+<span class="p">vsync       </span>=<span class="k">true</span>
+<span class="p">target_fps  </span>=<span class="n">144</span>
+<span class="p">msaa        </span>=<span class="n">4</span>
+
+<span class="t">[render.clustered]</span>
+<span class="p">enabled     </span>=<span class="k">true</span>
+<span class="p">max_lights  </span>=<span class="n">2048</span>
+<span class="p">cell_size   </span>=<span class="n">32</span>
+
+<span class="t">[physics]</span>
+<span class="p">step_hz     </span>=<span class="n">120</span>             <span class="c"># фиксированный шаг Bolt</span>
+<span class="p">gravity     </span>=[<span class="n">0.0</span>, -<span class="n">9.81</span>, <span class="n">0.0</span>]
+<span class="p">sleeping    </span>=<span class="k">true</span>
+
+<span class="t">[audio]</span>
+<span class="p">master_volume </span>=<span class="n">0.8</span>
+<span class="p">channels      </span>=<span class="n">32</span>
+
+<span class="t">[build]</span>
+<span class="p">platforms   </span>=[<span class="s">"windows"</span>, <span class="s">"web"</span>]
+<span class="p">compress    </span>=<span class="s">"brotli"</span>
+<span class="p">minify_js   </span>=<span class="k">true</span></code></pre></div>
+
+<h2>Таблица ключей</h2>
+<table class="docs">
+  <tr><th>Ключ</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+  <tr><td><code>render.backend</code></td><td>string</td><td><code>vulkan</code></td><td>Графический бэкенд</td></tr>
+  <tr><td><code>render.target_fps</code></td><td>int</td><td><code>60</code></td><td>Целевая частота кадров</td></tr>
+  <tr><td><code>render.msaa</code></td><td>int</td><td><code>4</code></td><td>Сглаживание: 0, 2, 4, 8</td></tr>
+  <tr><td><code>physics.step_hz</code></td><td>int</td><td><code>120</code></td><td>Частота шагов физики</td></tr>
+  <tr><td><code>physics.gravity</code></td><td>vec3</td><td><code>[0,-9.81,0]</code></td><td>Вектор гравитации</td></tr>
+  <tr><td><code>build.compress</code></td><td>string</td><td><code>none</code></td><td><code>none | gzip | brotli</code></td></tr>
+</table>
+
+<h2>Переопределение из окружения</h2>
+<p>Любой ключ можно переопределить переменной вида <code>SCREW_&lt;SECTION&gt;_&lt;KEY&gt;</code>:</p>
+<div class="codeblock"><div class="cb-head"><span>терминал</span><button class="copy-btn" type="button">Копировать</button><span class="lang">bash</span></div><pre><code><span class="g">SCREW_RENDER_TARGET_FPS=60 screw run</span>
+<span class="g">SCREW_PHYSICS_STEP_HZ=60 screw run   # медленная физика для отладки</span></code></pre></div>
+<div class="callout note"><span class="ct">Проверка конфигурации</span><p>Команда <code>screw config check</code> валидирует файл и подсвечивает неизвестные ключи до запуска игры.</p></div>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: getting-started/configuration.html</span>
+</div>
+<div class="pager"><a href="../getting-started/index.html"><span class="dir">← Назад</span><span class="ttl">Установка</span></a><a class="next" href="../getting-started/first-steps.html"><span class="dir">Вперёд →</span><span class="ttl">Первые шаги</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

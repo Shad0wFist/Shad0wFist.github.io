@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Сцены и сущности (ECS) — Screwdriver Engine</title>
+<meta name="description" content="Как в Screwdriver устроена ECS-модель: сущности как идентификаторы, компоненты как данные, системы как код.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html" class="active">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html">Физика Bolt</a>
+<a href="../guides/scripting.html">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a><span class="sep">/</span><a href="../guides/index.html">Руководства</a></div>
+
+<h1>Сцены и сущности (ECS)</h1>
+<p class="lead">В Screwdriver нет «объектов со всем сразу». Есть три понятия:
+сущность, компонент и система.</p>
+
+<h2>Три кита</h2>
+<table class="docs">
+  <tr><th>Понятие</th><th>Что это</th><th>Пример</th></tr>
+  <tr><td><b>Entity</b></td><td>Целочисленный идентификатор, сам по себе пуст</td><td><code>42</code></td></tr>
+  <tr><td><b>Component</b></td><td>Чистые данные без методов</td><td><code>Transform</code>, <code>RigidBody</code></td></tr>
+  <tr><td><b>System</b></td><td>Функция, обходящая сущности с нужным набором компонентов</td><td><code>PhysicsSystem</code></td></tr>
+</table>
+
+<h2>Создание сущности</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/spawn.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local id = screw.<span class="f">spawn</span>(<span class="s">"Crate_01"</span>)
+
+screw.<span class="f">add</span>(id, <span class="s">"Transform"</span>, { position = <span class="f">vec3</span>(<span class="n">2</span>, <span class="n">0.5</span>, -<span class="n">3</span>), rotation = <span class="n">0</span> })
+screw.<span class="f">add</span>(id, <span class="s">"MeshRenderer"</span>, { mesh = <span class="s">"meshes/crate.scw"</span>, cast_shadows = true })
+screw.<span class="f">add</span>(id, <span class="s">"RigidBody"</span>,    { mass = <span class="n">12.0</span>, friction = <span class="n">0.6</span> })
+screw.<span class="f">tag</span>(id, <span class="s">"destructible"</span>)</code></pre></div>
+
+<h2>Запросы (archetypes)</h2>
+<p>Система объявляет, какие компоненты ей нужны, — ядро само держит плотные
+массивы только подходящих сущностей, поэтому обход быстр и предсказуем.</p>
+<div class="codeblock"><div class="cb-head"><span>scripts/gravity.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local <span class="t">Gravity</span> = screw.<span class="f">system</span>(<span class="s">"Gravity"</span>)
+<span class="t">Gravity</span>.requires = { <span class="s">"Transform"</span>, <span class="s">"RigidBody"</span> }   -- запрос
+
+function <span class="t">Gravity</span>:<span class="f">update</span>(dt)
+    for id, tr, rb in <span class="t">Gravity</span>:<span class="f">each</span>() do           -- плотный обход без аллокаций
+        rb.velocity.y = rb.velocity.y - <span class="n">9.81</span> * dt
+        tr.position   = tr.position + rb.velocity * dt
+    end
+end</code></pre></div>
+<div class="callout note"><span class="ct">Почему это быстро</span><p>Компоненты одного архетипа лежат в памяти подряд — CPU грузит их кэш-линиями, а не прыгает по указателям. На 10 000 сущностей обход занимает доли миллисекунды.</p></div>
+
+<h2>Сцены и префабы</h2>
+<p>Сцена (<code>.scw</code>) — сериализованный набор сущностей. Префаб — та же сцена,
+но пригодная для вставки copies во время игры:</p>
+<div class="codeblock"><div class="cb-head"><span>scripts/prefab.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local crate = screw.prefab.<span class="f">load</span>(<span class="s">"prefabs/crate.scw"</span>)
+for i = <span class="n">1</span>, <span class="n">20</span> do
+    local e = crate:<span class="f">instantiate</span>()
+    e:<span class="f">set_position</span>(<span class="f">vec3</span>(i * <span class="n">1.2</span>, <span class="n">4</span> + i, <span class="n">0</span>))
+end</code></pre></div>
+<p>Диаграмма кадрового цикла, где системы вызываются по порядку, — на странице
+<a href="../about/index.html">«О движке»</a>.</p>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: guides/scenes-and-entities.html</span>
+</div>
+<div class="pager"><a href="../guides/index.html"><span class="dir">← Назад</span><span class="ttl">Обзор руководств</span></a><a class="next" href="../guides/physics.html"><span class="dir">Вперёд →</span><span class="ttl">Физика Bolt</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

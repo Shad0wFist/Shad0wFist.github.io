@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Главная — Screwdriver Engine</title>
+<meta name="description" content="Screwdriver — открытый кроссплатформенный игровой движок для 2D и 3D игр. Обзор возможностей, быстрый старт, документация.">
+<link rel="icon" type="image/png" href="assets/images/logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/docs.css">
+<link rel="stylesheet" href="assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="index.html">
+    <img src="assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="index.html" class="active">Главная</a>
+<a href="about/index.html">О движке и о сайте</a>
+<a href="blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="getting-started/index.html">Установка</a>
+<a href="getting-started/configuration.html">Конфигурация</a>
+<a href="getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="guides/index.html">Обзор руководств</a>
+<a href="guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="guides/physics.html">Физика Bolt</a>
+<a href="guides/scripting.html">Скриптинг Torque</a>
+<a href="guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="api/index.html">Обзор API</a>
+<a href="api/core.html">Core API</a>
+<a href="api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="examples/index.html">Все примеры</a>
+<a href="examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="changelog.html">История изменений</a>
+<a href="faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="admin/index.html">Workbench Cloud (админка)</a>
+<a href="login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+
+
+<div class="hero">
+  <img class="logo-big" src="assets/images/logo.png" alt="Логотип Screwdriver">
+  <h1>Screwdriver — движок, который закручивает игры</h1>
+  <p>Открытый кроссплатформенный движок для 2D/3D-игр: ECS-ядро без GC-пауз,
+     физика с фиксированным шагом, скрипты на Lua и JS, редактор Workbench
+     и конвейер ассетов Crate. Одним словом — собери игру, как конструктор.</p>
+  <div class="row">
+    <a class="btn btn-primary" href="getting-started/index.html">Начать за 5 минут</a>
+    <a class="btn btn-ghost" href="examples/index.html">Смотреть примеры</a>
+    <a class="btn btn-ghost" href="api/index.html">Справочник API</a>
+  </div>
+</div>
+
+<p class="lead">Screwdriver создан для разработчиков, которые хотят контролировать
+каждый байт: предсказуемая производительность, прозрачная архитектура и
+ничего лишнего в рантайме.</p>
+
+<div class="cards">
+  <div class="card"><h3><span class="ico">🧩</span>Core: ECS</h3><p>Entity-Component-System с плотными массивами, job graph и ареной памяти. Никаких сборщиков мусора в кадре.</p></div>
+  <div class="card"><h3><span class="ico">🎨</span>Renderer</h3><p>Vulkan, OpenGL и WebGPU из одной кодовой базы. Кластеризованный свет, GPU-driven culling.</p></div>
+  <div class="card"><h3><span class="ico">⚙️</span>Bolt: физика</h3><p>Твёрдые тела, CCD, raycast и триггеры. Фиксированный шаг 120 Гц независимо от FPS.</p></div>
+  <div class="card"><h3><span class="ico">📜</span>Torque: скрипты</h3><p>Lua 5.4 и JS-биндинги с горячей перезагрузкой прямо во время игры.</p></div>
+  <div class="card"><h3><span class="ico">🛠</span>Workbench</h3><p>Редактор с иерархией сцены, инспектором, таймлайном и профилировщиком.</p></div>
+  <div class="card"><h3><span class="ico">📦</span>Crate</h3><p>Конвейер ассетов: импорт, сжатие текстур, сборка бандлов <code>.scw</code>.</p></div>
+</div>
+
+<h2>Движок в работе</h2>
+<p>Ниже — живой рендер тестовой сцены прямо в вашем браузере. Это тот же кадр,
+который движок считает на железе: сетка, коллайдеры, raycast и HUD статистики.</p>
+
+<div class="scene-wrap">
+  <canvas data-scene="demo" width="860" height="360"></canvas>
+  <div class="scene-bar">
+    <button type="button" data-act="play">Пауза</button>
+    <button type="button" data-act="colliders">Коллайдеры: вкл</button>
+    <span>scene: demo_scene.scw</span>
+    <span class="fps">fixed-step 120 Hz</span>
+  </div>
+</div>
+
+<figure class="shot">
+  <img src="assets/images/screenshots/editor-viewport.jpg" alt="Редактор Screwdriver Workbench: иерархия сцены, вьюпорт, инспектор и таймлайн" loading="lazy">
+  <figcaption>Рис. 1 — Screwdriver Workbench: иерархия слева, вьюпорт с gizmo в центре, инспектор справа, ассеты и таймлайн внизу.</figcaption>
+</figure>
+
+<h2>Быстрый старт</h2>
+<p>Установите CLI <code>screw</code> и создайте первый проект одной командой:</p>
+<div class="codeblock"><div class="cb-head"><span>терминал</span><button class="copy-btn" type="button">Копировать</button><span class="lang">bash</span></div><pre><code><span class="g">screw new my_first_game --template 2d-platformer</span>
+[crate] создание проекта my_first_game …
+[crate] шаблон: 2d-<span class="f">platformer</span> (v2.<span class="n">4</span>)
+[crate] распаковка ассетов … <span class="n">14</span> файлов
+[ ok ] проект готов. Дальше:
+       <span class="k">cd</span> my_first_game
+       <span class="k">screw</span> run</code></pre></div>
+<p>Подробнее — в разделе
+<a href="getting-started/index.html">Установка</a> и
+<a href="getting-started/first-steps.html">Первые шаги</a>.</p>
+
+<h2>Видео-туториал</h2>
+<p>Короткий ролик о том, как выглядит рантайм-кадр движка (анимация, 36 кадров, 120 Гц физика):</p>
+<figure class="shot">
+  <img src="assets/videos/demo.gif" alt="Анимированная демонстрация рантайм-кадра Screwdriver" loading="lazy">
+  <figcaption>Рис. 2 — demo.gif: вращающийся каркас, прыгающий шар с коллайдером, патрульный ИИ и raycast.</figcaption>
+</figure>
+
+<h2>Куда дальше</h2>
+<ul>
+  <li><a href="guides/scenes-and-entities.html">Сцены и сущности (ECS)</a> — как устроено ядро;</li>
+  <li><a href="guides/physics.html">Физика Bolt</a> — тела, коллайдеры, отладка;</li>
+  <li><a href="guides/scripting.html">Скриптинг Torque</a> — Lua и JS;</li>
+  <li><a href="examples/platformer-2d.html">Пример: 2D-платформер</a> — полный исходник;</li>
+  <li><a href="faq.html">FAQ</a> — частые вопросы и ответы.</li>
+</ul>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: index.html</span>
+</div>
+<div class="pager"><span></span><a class="next" href="about/index.html"><span class="dir">Вперёд →</span><span class="ttl">О движке и о сайте</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/sidebar.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/copy-code.js"></script>
+<script src="assets/js/scene-preview.js"></script>
+</body>
+</html>

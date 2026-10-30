@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* ставим тему ДО отрисовки, чтобы не мигало; по умолчанию тёмная */
+(function(){var t='dark';try{var s=localStorage.getItem('screw-theme');if(s==='light'||s==='dark')t=s;}catch(e){}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<title>Скриптинг Torque — Screwdriver Engine</title>
+<meta name="description" content="Скриптовый слой Torque: Lua 5.4 и JS, жизненный цикл систем, горячая перезагрузка, доступ к API.">
+<link rel="icon" type="image/png" href="../assets/images/logo.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+<link rel="stylesheet" href="../assets/css/syntax-highlight.css">
+</head>
+<body>
+<header class="site-header">
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰ Меню</button>
+  <a class="brand" href="../index.html">
+    <img src="../assets/images/logo.png" alt="Логотип Screwdriver">
+    <span>Screwdriver</span><span class="ver">v2.4</span>
+  </a>
+  <div class="header-spacer"></div>
+  <button class="theme-toggle" type="button" aria-pressed="true" title="Переключить тему">☀ Светлая</button>
+  <div class="search-box" data-root="../">
+    <input type="search" placeholder="Поиск по документации…" aria-label="Поиск по документации">
+    <span class="icon">⌕</span>
+  </div>
+  <a class="gh-link" href="../changelog.html">Релизы</a>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Разделы документации">
+<h4>Начало</h4>
+<a href="../index.html">Главная</a>
+<a href="../about/index.html">О движке и о сайте</a>
+<a href="../blog/post1.html">Блог: релиз 2.4</a>
+<h4>Быстрый старт</h4>
+<a href="../getting-started/index.html">Установка</a>
+<a href="../getting-started/configuration.html">Конфигурация</a>
+<a href="../getting-started/first-steps.html">Первые шаги</a>
+<h4>Руководства</h4>
+<a href="../guides/index.html">Обзор руководств</a>
+<a href="../guides/scenes-and-entities.html">Сцены и сущности (ECS)</a>
+<a href="../guides/physics.html">Физика Bolt</a>
+<a href="../guides/scripting.html" class="active">Скриптинг Torque</a>
+<a href="../guides/troubleshooting.html">Устранение проблем</a>
+<h4>Справочник API</h4>
+<a href="../api/index.html">Обзор API</a>
+<a href="../api/core.html">Core API</a>
+<a href="../api/scene.html">Scene API</a>
+<h4>Примеры</h4>
+<a href="../examples/index.html">Все примеры</a>
+<a href="../examples/platformer-2d.html">2D-платформер</a>
+<h4>Проект</h4>
+<a href="../changelog.html">История изменений</a>
+<a href="../faq.html">FAQ</a>
+<h4>Служебные страницы</h4>
+<a href="../admin/index.html">Workbench Cloud (админка)</a>
+<a href="../login/index.html">Вход в аккаунт</a>
+</nav>
+<main class="content">
+<div class="crumbs"><a href="../index.html">Главная</a><span class="sep">/</span><a href="../guides/index.html">Руководства</a></div>
+
+<h1>Скриптинг Torque</h1>
+<p class="lead">Игровая логика пишется на Lua 5.4 или JavaScript. Оба языка видят одно и то же API.</p>
+
+<h2>Жизненный цикл системы</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/lifecycle.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local <span class="t">S</span> = screw.<span class="f">system</span>(<span class="s">"Example"</span>)
+
+function <span class="t">S</span>:<span class="f">on_start</span>()   end   -- один раз при старте сцены
+function <span class="t">S</span>:<span class="f">update</span>(dt)   end   -- каждый кадр (после физики)
+function <span class="t">S</span>:<span class="f">fixed_update</span>(dt) end -- каждый шаг физики (<span class="n">120</span> Гц)
+function <span class="t">S</span>:<span class="f">on_render</span>()  end   -- перед отправкой кадра (камеры, эффекты)
+function <span class="t">S</span>:<span class="f">on_stop</span>()    end   -- при выгрузке сцены</code></pre></div>
+
+<h2>То же самое на JavaScript</h2>
+<div class="codeblock"><div class="cb-head"><span>scripts/lifecycle.js</span><button class="copy-btn" type="button">Копировать</button><span class="lang">js</span></div><pre><code><span class="k">import</span> { system, each, input } <span class="k">from</span> <span class="s">"screwdriver"</span>;
+
+<span class="k">export</span> <span class="k">default</span> <span class="f">system</span>(<span class="s">"Example"</span>, {
+  <span class="f">update</span>(dt) {
+    <span class="k">for</span> (<span class="k">const</span> [id, body] <span class="k">of</span> <span class="f">each</span>(<span class="s">"RigidBody"</span>)) {
+      body.velocity.x = input.<span class="f">axis</span>(<span class="s">"horizontal"</span>) * <span class="n">6.0</span>;
+    }
+  },
+});</code></pre></div>
+
+<h2>Горячая перезагрузка</h2>
+<p>Редактор следит за каталогом <code>scripts/</code>. Сохранение файла подменяет код
+«на лету», состояние систем сохраняется через <code>S.state</code>.</p>
+<div class="codeblock"><div class="cb-head"><span>scripts/counter.lua</span><button class="copy-btn" type="button">Копировать</button><span class="lang">lua</span></div><pre><code>local <span class="t">S</span> = screw.<span class="f">system</span>(<span class="s">"Counter"</span>)
+<span class="t">S</span>.state = <span class="t">S</span>.state or { ticks = <span class="n">0</span> }   -- переживёт hot reload
+
+function <span class="t">S</span>:<span class="f">update</span>(dt)
+    <span class="t">S</span>.state.ticks = <span class="t">S</span>.state.ticks + <span class="n">1</span>
+end</code></pre></div>
+<div class="callout tip"><span class="ct">Профилируйте, а не гадайте</span><p>Команда <code>screw profile --frames 600</code> снимет flame chart и покажет, какая система самая дорогая. Пример отчёта — на скриншоте в <a href="../blog/post1.html">блоге</a>.</p></div>
+
+<div class="page-meta">
+  <span>Движок: Screwdriver 2.4 «Hexhead»</span><span>·</span>
+  <span>Лицензия: MIT</span><span>·</span>
+  <span>Страница: guides/scripting.html</span>
+</div>
+<div class="pager"><a href="../guides/physics.html"><span class="dir">← Назад</span><span class="ttl">Физика Bolt</span></a><a class="next" href="../guides/troubleshooting.html"><span class="dir">Вперёд →</span><span class="ttl">Устранение проблем</span></a></div>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2024–2026 Screwdriver Engine. Учебный open-source проект.</span>
+    <span class="dot">•</span>
+    <a href="../faq.html">FAQ</a>
+    <span class="dot">•</span>
+    <a href="../changelog.html">Changelog</a>
+    <span class="dot">•</span>
+    <span>Сделано без внешних CDN — все ассеты локальные.</span>
+  </div>
+</footer>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/copy-code.js"></script>
+
+</body>
+</html>

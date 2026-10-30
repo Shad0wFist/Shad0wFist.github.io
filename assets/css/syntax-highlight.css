@@ -1,0 +1,19 @@
+/* ============================================================
+   Screwdriver Docs — подсветка синтаксиса (assets/css/syntax-highlight.css)
+   Токены: .k ключевое слово, .s строка, .c комментарий, .n число,
+   .f функция, .t тип, .v переменная, .o оператор, .p свойство/ключ
+   Палитра в духе тёмных IDE-тем движков.
+   ============================================================ */
+
+.codeblock .c  { color: #64748b; font-style: italic; }   /* комментарии */
+.codeblock .k  { color: #c084fc; }                        /* keywords    */
+.codeblock .s  { color: #86efac; }                        /* строки      */
+.codeblock .n  { color: #fca5a5; }                        /* числа       */
+.codeblock .f  { color: #7dd3fc; }                        /* функции     */
+.codeblock .t  { color: #fcd34d; }                        /* типы        */
+.codeblock .v  { color: #f0abfc; }                        /* переменные  */
+.codeblock .o  { color: #94a3b8; }                        /* операторы   */
+.codeblock .p  { color: #93c5fd; }                        /* ключи/свойства */
+.codeblock .m  { color: #f59e0b; }                        /* макросы/декораторы */
+.codeblock .g  { color: #4ade80; }                        /* prompt/команды shell */
+.codeblock .d  { color: #64748b; }                        /* приглушённый вывод */
